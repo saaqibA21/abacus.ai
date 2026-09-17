@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-select=none"/>
+<title>🧮 Master Soroban – Hyper-Realistic Abacus</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#F7F0E6;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,sans-serif;color:#281308;overflow-x:hidden}
+#app{max-width:880px;margin:0 auto;padding:12px 14px 40px}
+
+/* ── Canvas board container ── */
+.board-container{
+  position:relative;
+  margin:14px 0 10px;
+  filter:drop-shadow(0 18px 30px rgba(25,10,5,0.4)) drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+}
+#board{
+  width:100%;display:block;border-radius:18px;
+  cursor:grab;touch-action:none;user-select:none;
+}
+#board:active{cursor:grabbing}
+
+/* ── Top Bar / Header ── */
+header{
+  background:linear-gradient(135deg,#1E0804 0%,#4A190A 50%,#280C04 100%);
+  color:#FFF8EE;padding:12px 18px;border-radius:14px;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 6px 20px rgba(0,0,0,0.35);
+  border:1px solid rgba(255,180,60,0.18);
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{font-size:1.6rem}
+.brand-title{font-size:1.25rem;font-weight:900;letter-spacing:-.3px;line-height:1.1}
+.brand-sub{font-size:.68rem;color:#DDB99C;font-weight:500}
+.header-actions{display:flex;align-items:center;gap:8px}
+
+.icon-btn{
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,215,0,0.25);
+  color:#FFD700;border-radius:8px;padding:6px 10px;font-size:.78rem;font-weight:700;
+  cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s;
+}
+.icon-btn:hover{background:rgba(255,255,255,0.16);transform:translateY(-1px)}
+.icon-btn:active{transform:translateY(1px)}
+
+/* ── Quick Controls Bar ── */
+.controls-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:8px;margin:10px 0 6px;
+}
+.tabs{display:flex;gap:6px}
+.tab-btn{
+  padding:8px 16px;border:none;border-radius:9px;
+  font-size:.84rem;font-weight:800;cursor:pointer;transition:all .2s;
+}
+.tab-btn.active{background:#3D180B;color:#FFD700;box-shadow:0 3px 8px rgba(0,0,0,0.25)}
+.tab-btn.inactive{background:#E8D8C8;color:#5C2E00}
+.tab-btn.inactive:hover{background:#DEC6B0}
+
+.theme-select-wrap{display:flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;color:#5C2E00}
+.theme-select{
+  background:#fff;border:1.5px solid #C8A88B;border-radius:8px;
+  padding:4px 8px;font-size:.75rem;font-weight:700;color:#3D180B;cursor:pointer;outline:none;
+}
+
+/* ── Value Readout Card ── */
+.val-card{
+  background:linear-gradient(135deg,#1C0703 0%,#341208 60%,#200904 100%);
+  border-radius:15px;padding:16px 20px;text-align:center;
+  margin:10px 0 14px;box-shadow:0 6px 22px rgba(25,8,3,0.35);
+  border:1px solid rgba(255,180,60,0.16);
+  position:relative;overflow:hidden;
+}
+.val-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,215,0,0.4),transparent);
+}
+.val-sub{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:#C99F7F;font-weight:700}
+.val-main{
+  font-size:2.5rem;font-weight:900;color:#FFD700;line-height:1.15;
+  margin:4px 0;letter-spacing:-.5px;font-variant-numeric:tabular-nums;
+  text-shadow:0 2px 8px rgba(0,0,0,0.5);word-break:break-all;
+}
+.val-words{font-size:.82rem;color:#F4E5D4;font-style:italic;opacity:.92;min-height:20px}
+
+/* ── Panel Cards ── */
+.panel{
+  background:#FFFFFF;border-radius:14px;padding:15px;
+  box-shadow:0 3px 14px rgba(60,30,10,0.08);margin-bottom:12px;
+  border:1px solid rgba(139,69,19,0.08);
+}
+.panel-title{font-size:.95rem;font-weight:800;color:#351306;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+
+/* ── Buttons ── */
+.btn{
+  border:none;border-radius:9px;padding:9px 14px;font-size:.85rem;font-weight:800;
+  cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  transition:all .15s;
+}
+.btn:active{transform:scale(0.96)}
+.btn-wood{background:linear-gradient(180deg,#6D260E,#4A1608);color:#FFF8EE;box-shadow:0 3px 8px rgba(74,22,8,0.3)}
+.btn-wood:hover{filter:brightness(1.12)}
+.btn-green{background:linear-gradient(180deg,#2E7D32,#1B5E20);color:#FFFFFF;box-shadow:0 3px 8px rgba(27,94,32,0.3)}
+.btn-green:hover{filter:brightness(1.12)}
+.btn-red{background:linear-gradient(180deg,#D32F2F,#B71C1C);color:#FFFFFF}
+.btn-red:hover{filter:brightness(1.12)}
+.btn-outline{background:transparent;border:2px solid #5C2E00;color:#5C2E00}
+.btn-outline:hover{background:rgba(92,46,0,0.06)}
+.btn-gray{background:#F0ECE6;color:#3D180B}
+.btn-gray:hover{background:#E4DFD7}
+.btn-op{font-size:1.25rem;padding:7px 0;font-weight:900}
+.btn-op.selected{background:#3D180B;color:#FFD700;box-shadow:0 2px 6px rgba(0,0,0,0.3)}
+
+.row{display:flex;gap:8px;margin-bottom:8px}.row .btn{flex:1}
+.w-full{width:100%}
+
+/* ── Result & Alerts ── */
+#calc-result-banner{
+  display:none;background:rgba(46,125,50,0.12);border:1px solid rgba(46,125,50,0.3);
+  border-radius:9px;padding:10px 14px;color:#1B5E20;font-weight:700;font-size:.9rem;
+  margin-top:8px;
+}
+.history-item{
+  background:#FAF7F2;border:1px solid #EBE4D8;border-radius:8px;
+  padding:8px 12px;margin-bottom:5px;font-size:.88rem;color:#351306;
+  display:flex;align-items:center;justify-content:space-between;
+}
+
+/* ── Learn Tab ── */
+.challenge-box{
+  background:linear-gradient(135deg,#230903 0%,#541B0A 50%,#280A03 100%);
+  border-radius:14px;padding:16px;text-align:center;color:#FFF8EE;
+  box-shadow:0 4px 16px rgba(35,9,3,0.35);border:1px solid rgba(255,180,60,0.18);
+  margin-bottom:12px;
+}
+.ch-badge{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#D8AF8B;font-weight:700}
+.ch-target{
+  font-size:2.6rem;font-weight:900;color:#FFD700;line-height:1.15;
+  margin:4px 0;text-shadow:0 2px 8px rgba(0,0,0,0.5);
+}
+.ch-words{font-size:.8rem;color:#F0DDD0;font-style:italic}
+
+.feedback-box{
+  display:none;border-radius:9px;padding:10px 14px;
+  font-size:.88rem;font-weight:700;margin-bottom:10px;
+}
+.feedback-box.correct{display:block;background:#E8F5E9;color:#1B5E20;border:1px solid #A5D6A7}
+.feedback-box.wrong{display:block;background:#FFEBEE;color:#B71C1C;border:1px solid #FFCDD2}
+.feedback-box.hint{display:block;background:#FFFDE7;color:#5D4037;border:1px solid #FFF59D}
+
+.prog-track{background:#E0D4C5;height:7px;border-radius:4px;overflow:hidden;margin:8px 0 4px}
+.prog-fill{background:linear-gradient(90deg,#FFA000,#FFD700);height:100%;border-radius:4px;transition:width .35s ease}
+.prog-info{display:flex;justify-content:space-between;font-size:.72rem;color:#785B46;font-weight:700}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ════ HEADER ════ -->
+<header>
+  <div class="brand">
+    <span class="brand-icon">🧮</span>
+    <div>
+      <div class="brand-title">SOROBAN MASTER</div>
+      <div class="brand-sub">Authentic Japanese Abacus • 13 Rods</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="sound-btn" onclick="toggleAudio()" title="Toggle Clack Sounds">
+      <span id="sound-icon">🔊</span> Sound: <span id="sound-txt">ON</span>
+    </button>
+    <button class="icon-btn" onclick="triggerQuickClear()" title="Quick Clear All Beads">
+      <span>🧹</span> Clear
+    </button>
+  </div>
+</header>
+
+<!-- ════ CONTROLS BAR ════ -->
+<div class="controls-bar">
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-calc-btn" onclick="setTab('calc')">🔢 Calculator</button>
+    <button class="tab-btn inactive" id="tab-learn-btn" onclick="setTab('learn')">📚 Learn & Practice</button>
+  </div>
+  <div class="theme-select-wrap">
+    <span>Wood Style:</span>
+    <select class="theme-select" id="theme-selector" onchange="changeTheme(this.value)">
+      <option value="rosewood" selected>Dark Rosewood (Shitan)</option>
+      <option value="walnut">American Walnut</option>
+      <option value="ebony">Antique Ebony (Kokutan)</option>
+      <option value="cherry">Japanese Cherry (Sakura)</option>
+    </select>
+  </div>
+</div>
+
+<!-- ════ THE CANVAS ABACUS ════ -->
+<div class="board-container">
+  <canvas id="board"></canvas>
+</div>
+
+<!-- ════ VALUE DISPLAY CARD ════ -->
+<div class="val-card">
+  <div class="val-sub">Current Abacus Value</div>
+  <div class="val-main" id="disp-val">0</div>
+  <div class="val-words" id="disp-words">Zero</div>
+</div>
+
+<!-- ════ CALCULATOR TAB ════ -->
+<div id="view-calc">
+  <div class="panel">
+    <div class="panel-title"><span>🔢</span> 3-Step Abacus Arithmetic</div>
+    <div id="calc-saved-badge" style="display:none;font-size:.85rem;color:#1B5E20;font-weight:800;margin-bottom:8px"></div>
+
+    <!-- Step 1 -->
+    <div class="row">
+      <button class="btn btn-wood" onclick="saveFirstNumber()">① Save Current №</button>
+      <button class="btn btn-red" onclick="triggerQuickClear()">↺ Reset Board</button>
+    </div>
+
+    <!-- Step 2 -->
+    <p style="font-size:.8rem;color:#6C432E;font-weight:700;margin-bottom:6px">② Choose Operation:</p>
+    <div class="row">
+      <button class="btn btn-gray btn-op" data-op="+" onclick="selectOperation(this)">+</button>
+      <button class="btn btn-gray btn-op" data-op="−" onclick="selectOperation(this)">−</button>
+      <button class="btn btn-gray btn-op" data-op="×" onclick="selectOperation(this)">×</button>
+      <button class="btn btn-gray btn-op" data-op="÷" onclick="selectOperation(this)">÷</button>
+    </div>
+
+    <!-- Step 3 -->
+    <p style="font-size:.8rem;color:#6C432E;font-weight:700;margin-bottom:6px">③ Set Second Number on Board, then:</p>
+    <button class="btn btn-green w-full" id="calc-exec-btn" onclick="executeCalculation()" disabled>
+      = Calculate & Animate Beads
+    </button>
+    <div id="calc-result-banner"></div>
+  </div>
+
+  <div class="panel" id="history-card" style="display:none">
+    <div class="panel-title"><span>📋</span> Calculation History</div>
+    <div id="history-container"></div>
+  </div>
+</div>
+
+<!-- ════ LEARN TAB ════ -->
+<div id="view-learn" style="display:none">
+  <div class="challenge-box">
+    <div class="ch-badge">Challenge Target</div>
+    <div class="ch-target" id="learn-target-num">0</div>
+    <div class="ch-words" id="learn-target-words"></div>
+  </div>
+
+  <div style="font-weight:800;margin-bottom:10px;font-size:.92rem;color:#3D180B">
+    Your board value: <span id="learn-your-val" style="color:#8B2500">0</span>
+  </div>
+
+  <div class="feedback-box" id="learn-feedback"></div>
+
+  <div class="row">
+    <button class="btn btn-green" onclick="verifyChallenge()">✓ Check Beads</button>
+    <button class="btn btn-outline" onclick="demonstrateHint()">💡 Show Solution</button>
+    <button class="btn btn-wood" id="learn-next-btn" style="display:none" onclick="proceedNextChallenge()">Next Challenge →</button>
+  </div>
+
+  <div style="margin-top:12px">
+    <div class="prog-track"><div class="prog-fill" id="learn-prog-fill" style="width:5%"></div></div>
+    <div class="prog-info">
+      <span id="learn-step-lbl">Challenge 1 / 20</span>
+      <span id="learn-score-lbl">Score: 0 / 0</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /#app -->
+
+<!-- ══════════════════════════════════════════════════════════════
+     JAVASCRIPT: AUDIO ENGINE + PHYSICS + CANVAS RENDERING
+══════════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ─────────────────────────────────────────────────────────────
+   1. PROCEDURAL AUDIO SYNTHESIZER (Wood Bead Clack Engine)
+───────────────────────────────────────────────────────────────*/
+let audioCtx = null;
+let audioEnabled = true;
+
+function initAudio() {
+  if (!audioCtx) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) audioCtx = new AudioContext();
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+/**
+ * Synthesizes a realistic dry wooden click / bead clack.
+ * Uses a bandpass filtered noise burst + damped dual-mode resonant sine.
+ */
+function playBeadClack(pitchMod = 1.0, volume = 0.7) {
+  if (!audioEnabled) return;
+  initAudio();
+  if (!audioCtx) return;
+
+  const now = audioCtx.currentTime;
+  pitchMod = Math.max(0.7, Math.min(1.4, pitchMod));
+
+  // 1. Noise impulse (impact snap)
+  const bufferSize = audioCtx.sampleRate * 0.025; // 25ms
+  const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const output = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.2));
+  }
+  const noise = audioCtx.createBufferSource();
+  noise.buffer = noiseBuffer;
+
+  const noiseFilter = audioCtx.createBiquadFilter();
+  noiseFilter.type = 'bandpass';
+  noiseFilter.frequency.setValueAtTime(1800 * pitchMod, now);
+  noiseFilter.Q.setValueAtTime(4.5, now);
+
+  const noiseGain = audioCtx.createGain();
+  noiseGain.gain.setValueAtTime(0.4 * volume, now);
+  noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.022);
+
+  noise.connect(noiseFilter);
+  noiseFilter.connect(noiseGain);
+  noiseGain.connect(audioCtx.destination);
+  noise.start(now);
+
+  // 2. Body resonance (hollow bamboo/wood acoustic ping)
+  const osc = audioCtx.createOscillator();
+  const oscGain = audioCtx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(950 * pitchMod, now);
+  osc.frequency.exponentialRampToValueAtTime(420 * pitchMod, now + 0.035);
+
+  oscGain.gain.setValueAtTime(0.35 * volume, now);
+  oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+
+  osc.connect(oscGain);
+  oscGain.connect(audioCtx.destination);
+  osc.start(now);
+  osc.stop(now + 0.04);
+
+  triggerHaptic(16);
+}
+
+function playQuickClearSound() {
+  triggerHaptic(40);
+  if (!audioEnabled) return;
+  initAudio();
+  // Rapid cascading ripple of clacks
+  for (let i = 0; i < 7; i++) {
+    setTimeout(() => {
+      playBeadClack(0.9 + i * 0.06, 0.45);
+    }, i * 18);
+  }
+}
+
+function toggleAudio() {
+  audioEnabled = !audioEnabled;
+  document.getElementById('sound-icon').textContent = audioEnabled ? '🔊' : '🔇';
+  document.getElementById('sound-txt').textContent = audioEnabled ? 'ON' : 'OFF';
+  if (audioEnabled) {
+    initAudio();
+    playBeadClack(1.1, 0.8);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   2. ABACUS DATA MODEL & PHYSICS SIMULATION
+───────────────────────────────────────────────────────────────*/
+const NUM_RODS = 13;
+const EARTH_PER_ROD = 4;
+
+// Physical theme definitions
+const THEMES = {
+  rosewood: {
+    frameBase: '#1F0A06', frameGrain: '#3D150B', frameHighlight: '#7A2C18',
+    field: '#48190D', beam: '#120402', rod: '#A8A49E',
+    heavenOff: '#4A1D12', heavenOn: '#FFBE1A',
+    earthOff: '#4A1D12', earthOn: '#FF8800',
+    brass: '#D4AF37'
+  },
+  walnut: {
+    frameBase: '#25170F', frameGrain: '#452B1E', frameHighlight: '#684533',
+    field: '#382218', beam: '#180E09', rod: '#B0A8A0',
+    heavenOff: '#523425', heavenOn: '#FFC83B',
+    earthOff: '#523425', earthOn: '#FF9E1B',
+    brass: '#E2C068'
+  },
+  ebony: {
+    frameBase: '#101012', frameGrain: '#202024', frameHighlight: '#35353C',
+    field: '#18181D', beam: '#09090B', rod: '#CCCCCC',
+    heavenOff: '#3A3A42', heavenOn: '#E5A50A',
+    earthOff: '#3A3A42', earthOn: '#E65100',
+    brass: '#C5A059'
+  },
+  cherry: {
+    frameBase: '#330E07', frameGrain: '#591C10', frameHighlight: '#8B3120',
+    field: '#50170B', beam: '#1F0602', rod: '#B8ABA0',
+    heavenOff: '#622417', heavenOn: '#FFB300',
+    earthOff: '#622417', earthOn: '#F4511E',
+    brass: '#E0B548'
+  }
+};
+let currentTheme = THEMES.rosewood;
+
+// Rod state: logical vs physical animation
+// Each bead has targetY and currentY for fluid spring physics
+class BeadPhys {
+  constructor(rodIdx, isHeaven, earthIdx) {
+    this.rodIdx = rodIdx;
+    this.isHeaven = isHeaven;
+    this.earthIdx = earthIdx;
+    this.currY = 0;
+    this.targetY = 0;
+    this.prevTargetY = 0;
+  }
+}
+
+class RodData {
+  constructor(index) {
+    this.index = index;
+    this.heavenActive = false;
+    this.earthCount = 0;
+    this.hBead = new BeadPhys(index, true, -1);
+    this.eBeads = Array.from({length: EARTH_PER_ROD}, (_, d) => new BeadPhys(index, false, d));
+  }
+  get value() {
+    return (this.heavenActive ? 5 : 0) + this.earthCount;
+  }
+}
+
+let rods = Array.from({length: NUM_RODS}, (_, i) => new RodData(i));
+
+function computeTotalValue() {
+  let val = 0;
+  rods.forEach(r => {
+    val += r.value * Math.pow(10, r.index);
+  });
+  return val;
+}
+
+function setBoardValue(val) {
+  val = Math.max(0, Math.min(val, 9999999999999));
+  let rem = Math.floor(val);
+  for (let i = 0; i < NUM_RODS; i++) {
+    const d = rem % 10;
+    rem = Math.floor(rem / 10);
+    rods[i].heavenActive = d >= 5;
+    rods[i].earthCount = d >= 5 ? d - 5 : d;
+  }
+  updatePhysicalTargets();
+  playQuickClearSound();
+}
+
+/* ─────────────────────────────────────────────────────────────
+   3. CANVAS LAYOUT, RENDERING & PHYSICS LOOP
+───────────────────────────────────────────────────────────────*/
+const cvs = document.getElementById('board');
+const ctx = cvs.getContext('2d');
+const DPR = Math.min(window.devicePixelRatio || 1, 2.5);
+
+let CANVAS_CSS_H = 370;
+let FRAME_THICK = 24;
+const HEAVEN_RATIO = 0.38;
+const BEAM_H = 15;
+
+let CW = 740, ROD_SPACING, RX, RY, BEAM_Y, EARTH_TOP_Y, EARTH_BOT_Y;
+let woodGrainCanvas = null;
+
+function triggerHaptic(ms = 20) {
+  if (window.AndroidBridge && window.AndroidBridge.vibrate) {
+    try { window.AndroidBridge.vibrate(ms); } catch(e){}
+  }
+}
+
+function updateLayout() {
+  CW = cvs.clientWidth || 740;
+  FRAME_THICK = CW < 520 ? 12 : 24;
+  ROD_SPACING = (CW - 2 * FRAME_THICK) / NUM_RODS;
+  RX = Math.min(ROD_SPACING * 0.46, 24);
+  RY = RX * 0.54;
+  CANVAS_CSS_H = Math.round(Math.min(390, Math.max(300, CW < 520 ? 330 : 380)));
+  BEAM_Y = FRAME_THICK + (CANVAS_CSS_H - 2 * FRAME_THICK) * HEAVEN_RATIO;
+  EARTH_TOP_Y = BEAM_Y + BEAM_H;
+  EARTH_BOT_Y = CANVAS_CSS_H - FRAME_THICK;
+}
+
+function getRodCenterX(displayIdx) {
+  return FRAME_THICK + ROD_SPACING * displayIdx + ROD_SPACING / 2;
+}
+
+function calcTargetPositions() {
+  rods.forEach(r => {
+    // Heaven bead target
+    r.hBead.targetY = r.heavenActive ? (BEAM_Y - RY - 5) : (FRAME_THICK + RY + 6);
+
+    // Earth beads targets
+    for (let d = 0; d < EARTH_PER_ROD; d++) {
+      const b = r.eBeads[d];
+      if (d < r.earthCount) {
+        // Active: pushed up toward beam
+        b.targetY = EARTH_TOP_Y + RY + 5 + d * (RY * 2 + 2.5);
+      } else {
+        // Inactive: dropped to frame bottom
+        const fromBottomIdx = EARTH_PER_ROD - 1 - d;
+        b.targetY = EARTH_BOT_Y - RY - 5 - fromBottomIdx * (RY * 2 + 2.5);
+      }
+    }
+  });
+}
+
+function updatePhysicalTargets(triggerSound = true) {
+  calcTargetPositions();
+  if (triggerSound) {
+    playBeadClack(1.0, 0.75);
+  }
+}
+
+/* Pre-render realistic wood grain texture */
+function generateWoodGrainTexture() {
+  woodGrainCanvas = document.createElement('canvas');
+  woodGrainCanvas.width = Math.round(CW * DPR);
+  woodGrainCanvas.height = Math.round(CANVAS_CSS_H * DPR);
+  const g = woodGrainCanvas.getContext('2d');
+  g.scale(DPR, DPR);
+
+  // Base timber gradient
+  const bg = g.createLinearGradient(0, 0, CW, CANVAS_CSS_H);
+  bg.addColorStop(0, currentTheme.frameBase);
+  bg.addColorStop(0.2, currentTheme.frameGrain);
+  bg.addColorStop(0.5, currentTheme.frameBase);
+  bg.addColorStop(0.8, currentTheme.frameGrain);
+  bg.addColorStop(1, currentTheme.frameBase);
+  g.fillStyle = bg;
+  g.fillRect(0, 0, CW, CANVAS_CSS_H);
+
+  // Micro grain filaments
+  let seed = 0x5020B042;
+  const rand = () => { seed ^= seed << 13; seed ^= seed >> 17; seed ^= seed << 5; return (seed >>> 0) / 4294967295; };
+
+  for (let i = 0; i < 75; i++) {
+    let lx = CW * (i / 75) + (rand() - 0.5) * 16;
+    g.beginPath();
+    g.moveTo(lx, 0);
+    for (let y = 0; y <= CANVAS_CSS_H; y += 4) {
+      lx += (rand() - 0.5) * 1.6;
+      g.lineTo(lx, y);
+    }
+    g.strokeStyle = `rgba(0,0,0,${rand() * 0.16 + 0.04})`;
+    g.lineWidth = rand() * 1.5 + 0.4;
+    g.stroke();
+  }
+
+  // Warm subsurface timber highlights
+  for (let i = 0; i < 28; i++) {
+    let lx = CW * rand();
+    g.beginPath();
+    g.moveTo(lx, 0);
+    for (let y = 0; y <= CANVAS_CSS_H; y += 6) {
+      lx += (rand() - 0.5) * 1.0;
+      g.lineTo(lx, y);
+    }
+    g.strokeStyle = `rgba(255,190,90,${rand() * 0.08 + 0.02})`;
+    g.lineWidth = rand() * 0.8 + 0.3;
+    g.stroke();
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   DRAWING PRIMITIVES
+───────────────────────────────────────────────────────────────*/
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+/* Brass antique corner bracket reinforcement */
+function drawCornerBracket(x, y, flipX, flipY) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(flipX ? -1 : 1, flipY ? -1 : 1);
+
+  const L = 30;
+  const T = 7;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(L, 0);
+  ctx.lineTo(L, T);
+  ctx.lineTo(T, T);
+  ctx.lineTo(T, L);
+  ctx.lineTo(0, L);
+  ctx.closePath();
+
+  const brassGrad = ctx.createLinearGradient(0, 0, L, L);
+  brassGrad.addColorStop(0, '#FFF2A3');
+  brassGrad.addColorStop(0.3, currentTheme.brass);
+  brassGrad.addColorStop(0.7, '#8A6D1E');
+  brassGrad.addColorStop(1, '#57420A');
+  ctx.fillStyle = brassGrad;
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+
+  // Screw rivets
+  [[T / 2 + 10, T / 2], [T / 2, T / 2 + 10]].forEach(([sx, sy]) => {
+    ctx.beginPath();
+    ctx.arc(sx, sy, 2.2, 0, Math.PI * 2);
+    ctx.fillStyle = '#47360A';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(sx - 0.5, sy - 0.5, 1, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFECA0';
+    ctx.fill();
+  });
+
+  ctx.restore();
+}
+
+/* Draw brushed metal rod */
+function drawRod(x) {
+  const y1 = FRAME_THICK + 3;
+  const y2 = CANVAS_CSS_H - FRAME_THICK - 3;
+
+  // Drop shadow
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.55)';
+  ctx.shadowBlur = 5;
+  ctx.shadowOffsetX = 1.8;
+  const rg = ctx.createLinearGradient(x - 3, 0, x + 3, 0);
+  rg.addColorStop(0, '#3A3836');
+  rg.addColorStop(0.2, '#A6A29C');
+  rg.addColorStop(0.5, '#F0ECE8');
+  rg.addColorStop(0.8, '#9E9A94');
+  rg.addColorStop(1, '#33312F');
+  ctx.strokeStyle = rg;
+  ctx.lineWidth = 4.6;
+  ctx.beginPath();
+  ctx.moveTo(x, y1);
+  ctx.lineTo(x, y2);
+  ctx.stroke();
+  ctx.restore();
+
+  // Polished cap ends
+  [y1, y2].forEach(y => {
+    ctx.beginPath();
+    ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#5A5856';
+    ctx.fill();
+  });
+}
+
+/* Draw traditional reckoning beam with inlaid ivory unit dots */
+function drawReckoningBeam() {
+  const bx = FRAME_THICK;
+  const bw = CW - 2 * FRAME_THICK;
+
+  // Ebony beam
+  const bg = ctx.createLinearGradient(0, BEAM_Y, 0, BEAM_Y + BEAM_H);
+  bg.addColorStop(0, currentTheme.beam);
+  bg.addColorStop(0.3, '#22140F');
+  bg.addColorStop(0.7, '#150A07');
+  bg.addColorStop(1, currentTheme.beam);
+  ctx.fillStyle = bg;
+  ctx.fillRect(bx, BEAM_Y, bw, BEAM_H);
+
+  // Top highlight bevel & bottom shadow
+  ctx.fillStyle = 'rgba(255,200,100,0.22)';
+  ctx.fillRect(bx, BEAM_Y, bw, 1.5);
+  ctx.fillStyle = 'rgba(0,0,0,0.65)';
+  ctx.fillRect(bx, BEAM_Y + BEAM_H - 1.5, bw, 1.5);
+
+  // Inlaid traditional ivory unit alignment dots (Hoshi markers) on the reckoning beam!
+  // Placed at 3rd, 6th, 9th rods (Thousands, Millions, Billions)
+  for (let ri = 0; ri < NUM_RODS; ri++) {
+    if (ri === 0 || ri === 3 || ri === 6 || ri === 9 || ri === 12) {
+      const di = NUM_RODS - 1 - ri;
+      const x = getRodCenterX(di);
+      const cy = BEAM_Y + BEAM_H / 2;
+
+      // Ivory dot
+      ctx.beginPath();
+      ctx.arc(x, cy, 3.2, 0, Math.PI * 2);
+      const dotGrad = ctx.createRadialGradient(x - 0.8, cy - 0.8, 0.4, x, cy, 3.2);
+      dotGrad.addColorStop(0, '#FFFFFF');
+      dotGrad.addColorStop(0.7, '#F4EDE2');
+      dotGrad.addColorStop(1, '#C8BEAF');
+      ctx.fillStyle = dotGrad;
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+      ctx.lineWidth = 0.6;
+      ctx.stroke();
+    }
+  }
+}
+
+/* Draw 3D Bicone Soroban Bead */
+function drawRealisticBead(x, y, active, isHeaven, isHovered, isDragging) {
+  ctx.save();
+
+  // 1. Contact / Drop Shadow
+  ctx.shadowColor = 'rgba(0,0,0,0.68)';
+  ctx.shadowBlur = isDragging ? 14 : 7;
+  ctx.shadowOffsetX = isDragging ? 2.5 : 1.2;
+  ctx.shadowOffsetY = isDragging ? 6 : 3.5;
+
+  // Bicone contour path
+  const bicone = () => {
+    ctx.beginPath();
+    ctx.moveTo(x, y - RY);
+    ctx.bezierCurveTo(x + RX * 0.55, y - RY * 0.58, x + RX, y - RY * 0.08, x + RX, y);
+    ctx.bezierCurveTo(x + RX, y + RY * 0.08, x + RX * 0.55, y + RY * 0.58, x, y + RY);
+    ctx.bezierCurveTo(x - RX * 0.55, y + RY * 0.58, x - RX, y + RY * 0.08, x - RX, y);
+    ctx.bezierCurveTo(x - RX, y - RY * 0.08, x - RX * 0.55, y - RY * 0.58, x, y - RY);
+    ctx.closePath();
+  };
+
+  bicone();
+  ctx.fillStyle = 'rgba(0,0,0,0.02)';
+  ctx.fill();
+  ctx.restore();
+
+  // 2. Bead Body Color (Bi-directional curved radial lighting)
+  bicone();
+  const bodyGrad = ctx.createRadialGradient(
+    x - RX * 0.28, y - RY * 0.32, RY * 0.06,
+    x, y, RX * 1.2
+  );
+
+  if (active && isHeaven) {
+    bodyGrad.addColorStop(0, '#FFF394');
+    bodyGrad.addColorStop(0.24, currentTheme.heavenOn);
+    bodyGrad.addColorStop(0.65, '#BF7F00');
+    bodyGrad.addColorStop(1, '#573300');
+  } else if (active) {
+    bodyGrad.addColorStop(0, '#FFBA88');
+    bodyGrad.addColorStop(0.24, currentTheme.earthOn);
+    bodyGrad.addColorStop(0.65, '#9C3600');
+    bodyGrad.addColorStop(1, '#471400');
+  } else {
+    bodyGrad.addColorStop(0, '#7A3222');
+    bodyGrad.addColorStop(0.3, currentTheme.earthOff);
+    bodyGrad.addColorStop(0.7, '#240A05');
+    bodyGrad.addColorStop(1, '#110301');
+  }
+  ctx.fillStyle = bodyGrad;
+  ctx.fill();
+
+  // 3. Central Axis Borehole (showing metal rod passing through the bead)
+  ctx.save();
+  bicone();
+  ctx.clip();
+
+  ctx.beginPath();
+  ctx.ellipse(x, y, 3.2, 2.2, 0, 0, Math.PI * 2);
+  ctx.fillStyle = '#262422';
+  ctx.fill();
+
+  // Rod segment inside the hole
+  ctx.beginPath();
+  ctx.rect(x - 2, y - 2, 4, 4);
+  ctx.fillStyle = 'rgba(210,205,200,0.5)';
+  ctx.fill();
+
+  // 4. Sharp Equatorial Ridge Line (distinctive Soroban diamond silhouette)
+  ctx.beginPath();
+  ctx.moveTo(x - RX, y);
+  ctx.lineTo(x + RX, y);
+  ctx.strokeStyle = active
+    ? 'rgba(255,255,255,0.45)'
+    : 'rgba(255,180,120,0.22)';
+  ctx.lineWidth = 1.0;
+  ctx.stroke();
+
+  // 5. Specular Highlights on upper cone facet
+  const specGrad = ctx.createRadialGradient(
+    x - RX * 0.32, y - RY * 0.38, 0,
+    x - RX * 0.12, y - RY * 0.16, RX * 0.6
+  );
+  specGrad.addColorStop(0, active ? 'rgba(255,255,255,0.85)' : 'rgba(255,215,180,0.55)');
+  specGrad.addColorStop(0.45, active ? 'rgba(255,255,255,0.18)' : 'rgba(255,190,140,0.1)');
+  specGrad.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = specGrad;
+  ctx.fillRect(x - RX, y - RY, RX * 2, RY * 2);
+
+  // 6. Ambient bounce light on lower cone rim
+  const ambientRim = ctx.createLinearGradient(0, y + RY * 0.3, 0, y + RY);
+  ambientRim.addColorStop(0, 'rgba(255,255,255,0)');
+  ambientRim.addColorStop(0.7, active ? 'rgba(255,220,120,0.25)' : 'rgba(180,90,40,0.18)');
+  ambientRim.addColorStop(1, 'rgba(255,255,255,0.02)');
+  ctx.fillStyle = ambientRim;
+  ctx.fillRect(x - RX, y, RX * 2, RY);
+
+  // 7. Hover or drag enhancement glow
+  if (isHovered || isDragging) {
+    ctx.fillStyle = 'rgba(255,255,220,0.22)';
+    ctx.fillRect(x - RX, y - RY, RX * 2, RY * 2);
+  }
+
+  ctx.restore();
+
+  // Fine perimeter stroke
+  bicone();
+  ctx.strokeStyle = active ? 'rgba(160,100,0,0.4)' : 'rgba(0,0,0,0.55)';
+  ctx.lineWidth = 0.9;
+  ctx.stroke();
+}
+
+/* Labels on wooden frame */
+const PLACE_LABELS = ['U','T','H','K','TK','HK','M','TM','HM','B','TB','HB','T'];
+
+function drawFrameLabels() {
+  const fontSize = Math.max(8, Math.min(ROD_SPACING * 0.24, 12));
+  ctx.font = `800 ${fontSize}px system-ui, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  for (let ri = 0; ri < NUM_RODS; ri++) {
+    const di = NUM_RODS - 1 - ri;
+    const x = getRodCenterX(di);
+    const val = rods[ri].value;
+
+    // Top: Place Name (Units, Thousands, Millions...)
+    ctx.fillStyle = 'rgba(255,215,80,0.85)';
+    ctx.fillText(PLACE_LABELS[ri], x, FRAME_THICK * 0.5);
+
+    // Bottom: Digit readouts burned into frame
+    ctx.fillStyle = val > 0 ? 'rgba(255,225,90,0.95)' : 'rgba(255,190,70,0.2)';
+    ctx.fillText(val > 0 ? val.toString() : '·', x, CANVAS_CSS_H - FRAME_THICK * 0.5);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   4. PHYSICS INTEGRATION & MAIN ANIMATION LOOP
+───────────────────────────────────────────────────────────────*/
+let hoverKey = null;
+let dragBead = null;
+let dragStartY = 0;
+let dragInitialBeadY = 0;
+
+function stepPhysics() {
+  let needsRepaint = false;
+  const LERP_FACTOR = 0.36;
+  const SNAP_DIST = 0.4;
+
+  rods.forEach(r => {
+    // Heaven bead
+    const hb = r.hBead;
+    if (dragBead !== hb) {
+      const diff = hb.targetY - hb.currY;
+      if (Math.abs(diff) > SNAP_DIST) {
+        hb.currY += diff * LERP_FACTOR;
+        needsRepaint = true;
+      } else {
+        hb.currY = hb.targetY;
+      }
+    }
+
+    // Earth beads
+    r.eBeads.forEach(eb => {
+      if (dragBead !== eb) {
+        const diff = eb.targetY - eb.currY;
+        if (Math.abs(diff) > SNAP_DIST) {
+          eb.currY += diff * LERP_FACTOR;
+          needsRepaint = true;
+        } else {
+          eb.currY = eb.targetY;
+        }
+      }
+    });
+  });
+
+  return needsRepaint;
+}
+
+function renderFrame() {
+  updateLayout();
+  const pixelW = Math.round(CW * DPR);
+  const pixelH = Math.round(CANVAS_CSS_H * DPR);
+
+  if (cvs.width !== pixelW || cvs.height !== pixelH) {
+    cvs.width = pixelW;
+    cvs.height = pixelH;
+    cvs.style.height = CANVAS_CSS_H + 'px';
+    generateWoodGrainTexture();
+  }
+
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.clearRect(0, 0, CW, CANVAS_CSS_H);
+
+  // 1. Draw Wood Grain Frame
+  if (woodGrainCanvas) {
+    ctx.drawImage(woodGrainCanvas, 0, 0, CW, CANVAS_CSS_H);
+  }
+
+  // Outer bevel
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(255,200,80,0.22)';
+  ctx.beginPath();
+  ctx.moveTo(2, CANVAS_CSS_H - 2); ctx.lineTo(2, 2); ctx.lineTo(CW - 2, 2);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+  ctx.beginPath();
+  ctx.moveTo(CW - 2, 2); ctx.lineTo(CW - 2, CANVAS_CSS_H - 2); ctx.lineTo(2, CANVAS_CSS_H - 2);
+  ctx.stroke();
+
+  // 2. Playing Surface (Inner field)
+  const fieldX = FRAME_THICK;
+  const fieldY = FRAME_THICK;
+  const fieldW = CW - 2 * FRAME_THICK;
+  const fieldH = CANVAS_CSS_H - 2 * FRAME_THICK;
+  roundRect(fieldX, fieldY, fieldW, fieldH, 10);
+
+  const fieldGrad = ctx.createLinearGradient(fieldX, fieldY, fieldX + fieldW, fieldY + fieldH);
+  fieldGrad.addColorStop(0, currentTheme.field);
+  fieldGrad.addColorStop(0.5, currentTheme.frameBase);
+  fieldGrad.addColorStop(1, currentTheme.field);
+  ctx.fillStyle = fieldGrad;
+  ctx.fill();
+
+  // Inset shadow for board depth
+  roundRect(fieldX, fieldY, fieldW, fieldH, 10);
+  ctx.save();
+  ctx.clip();
+  const insetShadow = ctx.createLinearGradient(0, fieldY, 0, fieldY + 28);
+  insetShadow.addColorStop(0, 'rgba(0,0,0,0.48)');
+  insetShadow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = insetShadow;
+  ctx.fillRect(fieldX, fieldY, fieldW, 30);
+  ctx.restore();
+
+  roundRect(fieldX, fieldY, fieldW, fieldH, 10);
+  ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+  ctx.lineWidth = 1.8;
+  ctx.stroke();
+
+  // 3. Brass corner brackets (Traditional craftsmanship)
+  drawCornerBracket(4, 4, false, false);
+  drawCornerBracket(CW - 4, 4, true, false);
+  drawCornerBracket(4, CANVAS_CSS_H - 4, false, true);
+  drawCornerBracket(CW - 4, CANVAS_CSS_H - 4, true, true);
+
+  // 4. Rods behind beads
+  ctx.save();
+  roundRect(fieldX, fieldY, fieldW, fieldH, 10);
+  ctx.clip();
+
+  for (let di = 0; di < NUM_RODS; di++) {
+    drawRod(getRodCenterX(di));
+  }
+
+  // 5. Reckoning Beam (Divider Bar with mother-of-pearl markers)
+  drawReckoningBeam();
+
+  // 6. Beads
+  for (let ri = 0; ri < NUM_RODS; ri++) {
+    const di = NUM_RODS - 1 - ri;
+    const x = getRodCenterX(di);
+    const rod = rods[ri];
+
+    // Heaven bead
+    const hb = rod.hBead;
+    const isHHover = hoverKey === `${ri}:H`;
+    const isHDrag = dragBead === hb;
+    drawRealisticBead(x, hb.currY, rod.heavenActive, true, isHHover, isHDrag);
+
+    // Earth beads
+    rod.eBeads.forEach((eb, d) => {
+      const isEActive = d < rod.earthCount;
+      const isEHover = hoverKey === `${ri}:${d}`;
+      const isEDrag = dragBead === eb;
+      drawRealisticBead(x, eb.currY, isEActive, false, isEHover, isEDrag);
+    });
+  }
+
+  ctx.restore();
+
+  // 7. Place value and digit readouts
+  drawFrameLabels();
+}
+
+function animLoop() {
+  const isMoving = stepPhysics();
+  renderFrame();
+  requestAnimationFrame(animLoop);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   5. TOUCH & MOUSE INTERACTION (Click + Smooth Dragging)
+───────────────────────────────────────────────────────────────*/
+function getPointerCoord(e) {
+  const r = cvs.getBoundingClientRect();
+  const src = e.touches ? e.touches[0] : e;
+  return {
+    px: (src.clientX - r.left),
+    py: (src.clientY - r.top)
+  };
+}
+
+function findBeadAt(px, py) {
+  for (let ri = 0; ri < NUM_RODS; ri++) {
+    const di = NUM_RODS - 1 - ri;
+    const x = getRodCenterX(di);
+    const rod = rods[ri];
+
+    // Check Heaven Bead
+    let dx = (px - x) / RX;
+    let dy = (py - rod.hBead.currY) / RY;
+    if (dx * dx + dy * dy <= 1.4) {
+      return { bead: rod.hBead, rod, key: `${ri}:H`, isHeaven: true, index: -1 };
+    }
+
+    // Check Earth Beads
+    for (let d = 0; d < EARTH_PER_ROD; d++) {
+      const eb = rod.eBeads[d];
+      dx = (px - x) / RX;
+      dy = (py - eb.currY) / RY;
+      if (dx * dx + dy * dy <= 1.4) {
+        return { bead: eb, rod, key: `${ri}:${d}`, isHeaven: false, index: d };
+      }
+    }
+  }
+  return null;
+}
+
+cvs.addEventListener('pointerdown', e => {
+  initAudio();
+  const { px, py } = getPointerCoord(e);
+  const hit = findBeadAt(px, py);
+  if (hit) {
+    dragBead = hit.bead;
+    dragStartY = py;
+    dragInitialBeadY = hit.bead.currY;
+    cvs.setPointerCapture(e.pointerId);
+  }
+});
+
+cvs.addEventListener('pointermove', e => {
+  const { px, py } = getPointerCoord(e);
+
+  if (dragBead) {
+    const deltaY = py - dragStartY;
+    dragBead.currY = dragInitialBeadY + deltaY;
+    return;
+  }
+
+  const hit = findBeadAt(px, py);
+  const newKey = hit ? hit.key : null;
+  if (newKey !== hoverKey) {
+    hoverKey = newKey;
+    cvs.style.cursor = hit ? 'pointer' : 'default';
+  }
+});
+
+cvs.addEventListener('pointerup', e => {
+  if (dragBead) {
+    const { px, py } = getPointerCoord(e);
+    const rod = rods[dragBead.rodIdx];
+
+    if (dragBead.isHeaven) {
+      // Heaven bead: moved toward beam (down) activates, away (up) deactivates
+      const midPoint = (FRAME_THICK + BEAM_Y) / 2;
+      rod.heavenActive = dragBead.currY > midPoint;
+    } else {
+      // Earth bead: moved toward beam (up) activates, away (down) deactivates
+      const midPoint = (EARTH_TOP_Y + EARTH_BOT_Y) / 2;
+      if (dragBead.currY < midPoint) {
+        // Pushed up
+        rod.earthCount = Math.max(rod.earthCount, dragBead.earthIdx + 1);
+      } else {
+        // Pulled down
+        rod.earthCount = Math.min(rod.earthCount, dragBead.earthIdx);
+      }
+    }
+
+    dragBead = null;
+    updatePhysicalTargets(true);
+    syncValues();
+  }
+});
+
+// Single click / tap toggle
+cvs.addEventListener('click', e => {
+  const { px, py } = getPointerCoord(e);
+  const hit = findBeadAt(px, py);
+  if (!hit) return;
+
+  const rod = hit.rod;
+  if (hit.isHeaven) {
+    rod.heavenActive = !rod.heavenActive;
+  } else {
+    // Earth bead click rule
+    if (hit.index < rod.earthCount) {
+      rod.earthCount = hit.index; // Deactivate this bead and above
+    } else {
+      rod.earthCount = hit.index + 1; // Activate this bead and below
+    }
+  }
+
+  updatePhysicalTargets(true);
+  syncValues();
+});
+
+/* ─────────────────────────────────────────────────────────────
+   6. UI SYNCHRONIZATION & WORD FORMATTERS
+───────────────────────────────────────────────────────────────*/
+const ONES = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten',
+              'Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+const TENS = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+
+function formatThreeDigits(n) {
+  const h = Math.floor(n / 100), t = n % 100, parts = [];
+  if (h) parts.push(ONES[h] + ' Hundred');
+  if (t) parts.push(t < 20 ? ONES[t] : TENS[Math.floor(t / 10)] + (t % 10 ? ' ' + ONES[t % 10] : ''));
+  return parts.join(' ');
+}
+
+function numberToWords(n) {
+  if (n === 0) return 'Zero';
+  if (n < 0) return 'Negative ' + numberToWords(-n);
+  const parts = [];
+  if (Math.floor(n / 1e9)) parts.push(formatThreeDigits(Math.floor(n / 1e9)) + ' Billion');
+  if (Math.floor(n / 1e6) % 1000) parts.push(formatThreeDigits(Math.floor(n / 1e6) % 1000) + ' Million');
+  if (Math.floor(n / 1e3) % 1000) parts.push(formatThreeDigits(Math.floor(n / 1e3) % 1000) + ' Thousand');
+  if (n % 1000) parts.push(formatThreeDigits(n % 1000));
+  return parts.join(' ');
+}
+
+function formatCommas(n) {
+  return Number(n).toLocaleString('en-US');
+}
+
+function syncValues() {
+  const val = computeTotalValue();
+  document.getElementById('disp-val').textContent = formatCommas(val);
+  document.getElementById('disp-words').textContent = numberToWords(val);
+
+  if (activeTab === 'learn') {
+    const currTarget = CHALLENGES[challengeIdx % CHALLENGES.length];
+    const el = document.getElementById('learn-your-val');
+    el.textContent = formatCommas(val);
+    el.style.color = (val === currTarget) ? '#1B5E20' : '#8B2500';
+  }
+}
+
+function triggerQuickClear() {
+  rods.forEach(r => {
+    r.heavenActive = false;
+    r.earthCount = 0;
+  });
+  updatePhysicalTargets(false);
+  playQuickClearSound();
+  syncValues();
+}
+
+function changeTheme(themeKey) {
+  if (THEMES[themeKey]) {
+    currentTheme = THEMES[themeKey];
+    generateWoodGrainTexture();
+    playBeadClack(1.2, 0.6);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   7. CALCULATOR LOGIC
+───────────────────────────────────────────────────────────────*/
+let savedVal = null;
+let currentOp = null;
+let calcHistory = [];
+
+function saveFirstNumber() {
+  savedVal = computeTotalValue();
+  const badge = document.getElementById('calc-saved-badge');
+  badge.style.display = 'block';
+  badge.textContent = `① First Number Saved: ${formatCommas(savedVal)}`;
+  updateCalcBtn();
+  document.getElementById('calc-result-banner').style.display = 'none';
+  playBeadClack(1.2, 0.7);
+}
+
+function selectOperation(btn) {
+  document.querySelectorAll('.btn-op').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  currentOp = btn.dataset.op;
+  updateCalcBtn();
+  playBeadClack(1.1, 0.6);
+}
+
+function updateCalcBtn() {
+  document.getElementById('calc-exec-btn').disabled = !(savedVal !== null && currentOp);
+}
+
+function executeCalculation() {
+  if (savedVal === null || !currentOp) return;
+  const secondVal = computeTotalValue();
+  let result;
+  if (currentOp === '+') result = savedVal + secondVal;
+  else if (currentOp === '−') result = savedVal - secondVal;
+  else if (currentOp === '×') result = savedVal * secondVal;
+  else if (currentOp === '÷') result = secondVal === 0 ? NaN : savedVal / secondVal;
+
+  const resultStr = isNaN(result) ? 'Undefined (Cannot divide by 0)' : Number.isInteger(result) ? formatCommas(result) : result.toFixed(4);
+  const expr = `${formatCommas(savedVal)} ${currentOp} ${formatCommas(secondVal)} = ${resultStr}`;
+
+  // If answer fits on the board, animate beads to show the answer!
+  if (!isNaN(result) && Number.isInteger(result) && result >= 0 && result <= 9999999999999) {
+    setBoardValue(result);
+  }
+
+  const banner = document.getElementById('calc-result-banner');
+  banner.style.display = 'block';
+  banner.textContent = '✅ Result: ' + expr;
+
+  calcHistory.unshift(expr);
+  if (calcHistory.length > 8) calcHistory.pop();
+  renderHistory();
+
+  // Reset calculator inputs
+  savedVal = null;
+  currentOp = null;
+  document.getElementById('calc-saved-badge').style.display = 'none';
+  document.querySelectorAll('.btn-op').forEach(b => b.classList.remove('selected'));
+  updateCalcBtn();
+}
+
+function renderHistory() {
+  const card = document.getElementById('history-card');
+  const container = document.getElementById('history-container');
+  if (calcHistory.length === 0) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = 'block';
+  container.innerHTML = calcHistory.map(h => `<div class="history-item"><span>${h}</span></div>`).join('');
+}
+
+/* ─────────────────────────────────────────────────────────────
+   8. LEARN MODE WITH 20 PROGRESSIVE CHALLENGES
+───────────────────────────────────────────────────────────────*/
+const CHALLENGES = [
+  3, 7, 5, 12, 25, 48, 63, 99, 100, 256, 500, 999,
+  1234, 5678, 9999, 12345, 99999, 100000, 123456, 1000000
+];
+let challengeIdx = 0;
+let userScore = 0;
+let totalAttempts = 0;
+let activeTab = 'calc';
+
+function loadChallenge() {
+  const target = CHALLENGES[challengeIdx % CHALLENGES.length];
+  document.getElementById('learn-target-num').textContent = formatCommas(target);
+  document.getElementById('learn-target-words').textContent = numberToWords(target);
+
+  const fb = document.getElementById('learn-feedback');
+  fb.className = 'feedback-box';
+  fb.textContent = '';
+  document.getElementById('learn-next-btn').style.display = 'none';
+
+  const pct = Math.round(((challengeIdx % CHALLENGES.length + 1) / CHALLENGES.length) * 100);
+  document.getElementById('learn-prog-fill').style.width = pct + '%';
+  document.getElementById('learn-step-lbl').textContent = `Challenge ${challengeIdx % CHALLENGES.length + 1} / ${CHALLENGES.length}`;
+  document.getElementById('learn-score-lbl').textContent = `Score: ${userScore} / ${totalAttempts}`;
+
+  triggerQuickClear();
+}
+
+function verifyChallenge() {
+  const target = CHALLENGES[challengeIdx % CHALLENGES.length];
+  const boardVal = computeTotalValue();
+  totalAttempts++;
+  const fb = document.getElementById('learn-feedback');
+
+  if (boardVal === target) {
+    userScore++;
+    fb.className = 'feedback-box correct';
+    fb.textContent = `🎉 Brilliant! ${formatCommas(target)} is correctly represented!`;
+    document.getElementById('learn-next-btn').style.display = 'inline-flex';
+    playBeadClack(1.3, 0.9);
+  } else {
+    fb.className = 'feedback-box wrong';
+    fb.textContent = `❌ You configured ${formatCommas(boardVal)}. Target is ${formatCommas(target)}. Try adjusting the beads!`;
+    playBeadClack(0.75, 0.8);
+  }
+  document.getElementById('learn-score-lbl').textContent = `Score: ${userScore} / ${totalAttempts}`;
+}
+
+function demonstrateHint() {
+  const target = CHALLENGES[challengeIdx % CHALLENGES.length];
+  setBoardValue(target);
+  const fb = document.getElementById('learn-feedback');
+  fb.className = 'feedback-box hint';
+  fb.textContent = `💡 Hint Solution: Here is how ${formatCommas(target)} is placed on the Soroban.`;
+  document.getElementById('learn-next-btn').style.display = 'inline-flex';
+}
+
+function proceedNextChallenge() {
+  challengeIdx++;
+  loadChallenge();
+}
+
+function setTab(tab) {
+  activeTab = tab;
+  document.getElementById('view-calc').style.display = (tab === 'calc') ? 'block' : 'none';
+  document.getElementById('view-learn').style.display = (tab === 'learn') ? 'block' : 'none';
+  document.getElementById('tab-calc-btn').className = 'tab-btn ' + (tab === 'calc' ? 'active' : 'inactive');
+  document.getElementById('tab-learn-btn').className = 'tab-btn ' + (tab === 'learn' ? 'active' : 'inactive');
+
+  if (tab === 'learn') {
+    loadChallenge();
+  }
+  playBeadClack(1.1, 0.6);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   9. INITIALIZATION
+───────────────────────────────────────────────────────────────*/
+window.addEventListener('resize', () => {
+  generateWoodGrainTexture();
+  updatePhysicalTargets(false);
+});
+
+// Initialize position
+updateLayout();
+calcTargetPositions();
+rods.forEach(r => {
+  r.hBead.currY = r.hBead.targetY;
+  r.eBeads.forEach(eb => eb.currY = eb.targetY);
+});
+generateWoodGrainTexture();
+syncValues();
+animLoop();
+</script>
+</body>
+</html>

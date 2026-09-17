@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Simplified abacus icon: wooden frame, divider bar, and stylised beads.
+  Used as both foreground and as the app icon directly in the manifest.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Wooden background circle -->
+    <path
+        android:fillColor="#8B4513"
+        android:pathData="M54,8 C29,8 8,29 8,54 C8,79 29,100 54,100 C79,100 100,79 100,54 C100,29 79,8 54,8Z"/>
+
+    <!-- Divider bar -->
+    <path
+        android:fillColor="#5C2E00"
+        android:pathData="M22,50 L86,50 L86,57 L22,57Z"/>
+
+    <!-- Heaven beads (gold, above bar) -->
+    <path android:fillColor="#FFD700"
+        android:pathData="M29,32 C33,32 33,46 29,46 C25,46 25,32 29,32Z"/>
+    <path android:fillColor="#FFD700"
+        android:pathData="M42,36 C46,36 46,46 42,46 C38,46 38,36 42,36Z"/>
+    <path android:fillColor="#FFD700"
+        android:pathData="M55,30 C59,30 59,46 55,46 C51,46 51,30 55,30Z"/>
+    <path android:fillColor="#FFD700"
+        android:pathData="M68,35 C72,35 72,46 68,46 C64,46 64,35 68,35Z"/>
+    <path android:fillColor="#FFD700"
+        android:pathData="M81,32 C85,32 85,46 81,46 C77,46 77,32 81,32Z"/>
+
+    <!-- Earth beads (wheat, below bar) -->
+    <path android:fillColor="#F5DEB3"
+        android:pathData="M29,60 C33,60 33,66 29,66 C25,66 25,60 29,60Z"/>
+    <path android:fillColor="#FF8C00"
+        android:pathData="M29,68 C33,68 33,74 29,74 C25,74 25,68 29,68Z"/>
+    <path android:fillColor="#F5DEB3"
+        android:pathData="M42,60 C46,60 46,74 42,74 C38,74 38,60 42,60Z"/>
+    <path android:fillColor="#FF8C00"
+        android:pathData="M55,60 C59,60 59,66 55,66 C51,66 51,60 55,60Z"/>
+    <path android:fillColor="#FF8C00"
+        android:pathData="M55,68 C59,68 59,74 55,74 C51,74 51,68 55,68Z"/>
+    <path android:fillColor="#F5DEB3"
+        android:pathData="M68,60 C72,60 72,74 68,74 C64,74 64,60 68,60Z"/>
+    <path android:fillColor="#F5DEB3"
+        android:pathData="M81,60 C85,60 85,74 81,74 C77,74 77,60 81,60Z"/>
+    <path android:fillColor="#FF8C00"
+        android:pathData="M81,76 C85,76 85,82 81,82 C77,82 77,76 81,76Z"/>
+</vector>
