@@ -7,7 +7,7 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:#F7F0E6;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,sans-serif;color:#281308;overflow-x:hidden}
-#app{max-width:880px;margin:0 auto;padding:12px 14px 40px}
+#app{max-width:880px;margin:0 auto;padding:12px 14px 86px}
 
 /* ── Canvas board container ── */
 .board-container{
@@ -26,7 +26,7 @@ header{
   background:linear-gradient(135deg,#1E0804 0%,#4A190A 50%,#280C04 100%);
   color:#FFF8EE;padding:12px 18px;border-radius:14px;
   display:flex;align-items:center;justify-content:space-between;
-  box-shadow:0 6px 20px rgba(0,0,0,0.35);
+  box-shadow:0 4px 14px rgba(0,0,0,0.3);
   border:1px solid rgba(255,180,60,0.18);
 }
 .brand{display:flex;align-items:center;gap:10px}
@@ -37,37 +37,62 @@ header{
 
 .icon-btn{
   background:rgba(255,255,255,0.08);border:1px solid rgba(255,215,0,0.25);
-  color:#FFD700;border-radius:8px;padding:6px 10px;font-size:.78rem;font-weight:700;
-  cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:all .15s;
+  color:#FFD700;border-radius:9px;padding:6px 11px;font-size:.78rem;font-weight:700;
+  cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background .15s ease;
 }
-.icon-btn:hover{background:rgba(255,255,255,0.16);transform:translateY(-1px)}
-.icon-btn:active{transform:translateY(1px)}
+.icon-btn:hover{background:rgba(255,255,255,0.16)}
+.icon-btn:active{opacity:.8}
 
-/* ── Quick Controls Bar ── */
-.controls-bar{
-  display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;gap:8px;margin:10px 0 6px;
+/* ── Bottom Tab Navigation ── */
+.bottom-nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  max-width:880px;margin:0 auto;
+  display:flex;gap:8px;
+  background:#FFF8EE;border-top:1px solid rgba(139,69,19,0.14);
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom));
 }
+.bottom-nav .tab-btn{flex:1}
 .tabs{display:flex;gap:6px}
 .tab-btn{
-  padding:8px 16px;border:none;border-radius:9px;
-  font-size:.84rem;font-weight:800;cursor:pointer;transition:all .2s;
+  padding:9px 16px;border:none;border-radius:9px;
+  font-size:.84rem;font-weight:800;cursor:pointer;transition:background .15s ease;
 }
-.tab-btn.active{background:#3D180B;color:#FFD700;box-shadow:0 3px 8px rgba(0,0,0,0.25)}
+.tab-btn.active{background:#3D180B;color:#FFD700}
 .tab-btn.inactive{background:#E8D8C8;color:#5C2E00}
 .tab-btn.inactive:hover{background:#DEC6B0}
 
 .theme-select-wrap{display:flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;color:#5C2E00}
 .theme-select{
-  background:#fff;border:1.5px solid #C8A88B;border-radius:8px;
-  padding:4px 8px;font-size:.75rem;font-weight:700;color:#3D180B;cursor:pointer;outline:none;
+  background:#fff;border:1.5px solid #C8A88B;border-radius:9px;
+  padding:5px 9px;font-size:.75rem;font-weight:700;color:#3D180B;cursor:pointer;outline:none;
+  transition:border-color .15s ease;
+}
+.theme-select:focus{border-color:#5C2E00;box-shadow:0 0 0 3px rgba(92,46,0,0.12)}
+
+/* ── Settings Panel ── */
+.settings-overlay{
+  display:none;position:fixed;inset:0;background:rgba(20,8,3,0.5);
+  z-index:100;align-items:center;justify-content:center;padding:20px;
+}
+.settings-overlay.open{display:flex}
+.settings-panel{
+  background:#FFFFFF;border-radius:14px;padding:18px 20px;width:100%;max-width:360px;
+  box-shadow:0 12px 28px rgba(0,0,0,0.28);
+}
+.settings-panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  font-weight:800;font-size:1rem;color:#351306;margin-bottom:6px;
+}
+.settings-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0;border-top:1px solid #F0EAE2;font-size:.85rem;font-weight:700;color:#5C2E00;
 }
 
 /* ── Value Readout Card ── */
 .val-card{
   background:linear-gradient(135deg,#1C0703 0%,#341208 60%,#200904 100%);
   border-radius:15px;padding:16px 20px;text-align:center;
-  margin:10px 0 14px;box-shadow:0 6px 22px rgba(25,8,3,0.35);
+  margin:10px 0 14px;box-shadow:0 6px 20px rgba(25,8,3,0.32);
   border:1px solid rgba(255,180,60,0.16);
   position:relative;overflow:hidden;
 }
@@ -86,7 +111,7 @@ header{
 /* ── Panel Cards ── */
 .panel{
   background:#FFFFFF;border-radius:14px;padding:15px;
-  box-shadow:0 3px 14px rgba(60,30,10,0.08);margin-bottom:12px;
+  box-shadow:0 3px 12px rgba(60,30,10,0.07);margin-bottom:12px;
   border:1px solid rgba(139,69,19,0.08);
 }
 .panel-title{font-size:.95rem;font-weight:800;color:#351306;margin-bottom:10px;display:flex;align-items:center;gap:6px}
@@ -95,9 +120,10 @@ header{
 .btn{
   border:none;border-radius:9px;padding:9px 14px;font-size:.85rem;font-weight:800;
   cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;
-  transition:all .15s;
+  transition:filter .15s ease,transform .1s ease;
 }
 .btn:active{transform:scale(0.96)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3);transform:none}
 .btn-wood{background:linear-gradient(180deg,#6D260E,#4A1608);color:#FFF8EE;box-shadow:0 3px 8px rgba(74,22,8,0.3)}
 .btn-wood:hover{filter:brightness(1.12)}
 .btn-green{background:linear-gradient(180deg,#2E7D32,#1B5E20);color:#FFFFFF;box-shadow:0 3px 8px rgba(27,94,32,0.3)}
@@ -151,6 +177,19 @@ header{
 .prog-track{background:#E0D4C5;height:7px;border-radius:4px;overflow:hidden;margin:8px 0 4px}
 .prog-fill{background:linear-gradient(90deg,#FFA000,#FFD700);height:100%;border-radius:4px;transition:width .35s ease}
 .prog-info{display:flex;justify-content:space-between;font-size:.72rem;color:#785B46;font-weight:700}
+
+/* ── Learn Tab: Manual Entry & Undo/Redo ── */
+.num-input{
+  flex:1;background:#fff;border:1.5px solid #C8A88B;border-radius:9px;
+  padding:8px 12px;font-size:.9rem;font-weight:700;color:#3D180B;outline:none;
+  transition:border-color .15s ease,box-shadow .15s ease;
+}
+.num-input:hover{border-color:#A8825F}
+.num-input:focus{border-color:#5C2E00;box-shadow:0 0 0 3px rgba(92,46,0,0.12)}
+
+/* ── Tab view transition ── */
+@keyframes viewFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.view-fade-in{animation:viewFadeIn .28s cubic-bezier(.4,0,.2,1)}
 </style>
 </head>
 <body>
@@ -166,29 +205,37 @@ header{
     </div>
   </div>
   <div class="header-actions">
-    <button class="icon-btn" id="sound-btn" onclick="toggleAudio()" title="Toggle Clack Sounds">
-      <span id="sound-icon">🔊</span> Sound: <span id="sound-txt">ON</span>
-    </button>
     <button class="icon-btn" onclick="triggerQuickClear()" title="Quick Clear All Beads">
       <span>🧹</span> Clear
+    </button>
+    <button class="icon-btn" onclick="toggleSettings()" title="Settings">
+      <span>⚙️</span> Settings
     </button>
   </div>
 </header>
 
-<!-- ════ CONTROLS BAR ════ -->
-<div class="controls-bar">
-  <div class="tabs">
-    <button class="tab-btn active" id="tab-calc-btn" onclick="setTab('calc')">🔢 Calculator</button>
-    <button class="tab-btn inactive" id="tab-learn-btn" onclick="setTab('learn')">📚 Learn & Practice</button>
-  </div>
-  <div class="theme-select-wrap">
-    <span>Wood Style:</span>
-    <select class="theme-select" id="theme-selector" onchange="changeTheme(this.value)">
-      <option value="rosewood" selected>Dark Rosewood (Shitan)</option>
-      <option value="walnut">American Walnut</option>
-      <option value="ebony">Antique Ebony (Kokutan)</option>
-      <option value="cherry">Japanese Cherry (Sakura)</option>
-    </select>
+<!-- ════ SETTINGS PANEL ════ -->
+<div class="settings-overlay" id="settings-overlay" onclick="if(event.target===this) toggleSettings()">
+  <div class="settings-panel">
+    <div class="settings-panel-header">
+      <span>⚙️ Settings</span>
+      <button class="icon-btn" style="background:#F0ECE6;color:#3D180B;border:none" onclick="toggleSettings()">✕</button>
+    </div>
+    <div class="settings-row">
+      <span>🔊 Clack Sound</span>
+      <button class="icon-btn" id="sound-btn" style="background:#F0ECE6;color:#3D180B;border:none" onclick="toggleAudio()">
+        <span id="sound-icon">🔊</span> <span id="sound-txt">ON</span>
+      </button>
+    </div>
+    <div class="settings-row">
+      <span>🪵 Wood Style</span>
+      <select class="theme-select" id="theme-selector" onchange="changeTheme(this.value)">
+        <option value="rosewood" selected>Dark Rosewood (Shitan)</option>
+        <option value="walnut">American Walnut</option>
+        <option value="ebony">Antique Ebony (Kokutan)</option>
+        <option value="cherry">Japanese Cherry (Sakura)</option>
+      </select>
+    </div>
   </div>
 </div>
 
@@ -259,6 +306,21 @@ header{
     <button class="btn btn-wood" id="learn-next-btn" style="display:none" onclick="proceedNextChallenge()">Next Challenge →</button>
   </div>
 
+  <div class="row">
+    <button class="btn btn-gray" id="learn-undo-btn" onclick="undoMove()" disabled title="Undo last bead move">↶ Undo</button>
+    <button class="btn btn-gray" id="learn-redo-btn" onclick="redoMove()" disabled title="Redo bead move">↷ Redo</button>
+  </div>
+
+  <div class="panel" style="padding:12px 14px;margin-bottom:0">
+    <div class="panel-title" style="margin-bottom:8px;font-size:.85rem"><span>🔢</span> Set Beads by Number</div>
+    <div class="row" style="margin-bottom:0">
+      <input type="number" inputmode="numeric" class="num-input" id="learn-manual-input"
+             placeholder="Type a number…" min="0" max="9999999999999"
+             onkeydown="if(event.key==='Enter'){applyManualEntry()}">
+      <button class="btn btn-wood" onclick="applyManualEntry()" style="flex:0 0 auto">Set</button>
+    </div>
+  </div>
+
   <div style="margin-top:12px">
     <div class="prog-track"><div class="prog-fill" id="learn-prog-fill" style="width:5%"></div></div>
     <div class="prog-info">
@@ -269,6 +331,12 @@ header{
 </div>
 
 </div><!-- /#app -->
+
+<!-- ════ BOTTOM TAB NAVIGATION ════ -->
+<div class="bottom-nav">
+  <button class="tab-btn active" id="tab-calc-btn" onclick="setTab('calc')">🔢 Calculator</button>
+  <button class="tab-btn inactive" id="tab-learn-btn" onclick="setTab('learn')">📚 Learn & Practice</button>
+</div>
 
 <!-- ══════════════════════════════════════════════════════════════
      JAVASCRIPT: AUDIO ENGINE + PHYSICS + CANVAS RENDERING
@@ -368,6 +436,10 @@ function toggleAudio() {
   }
 }
 
+function toggleSettings() {
+  document.getElementById('settings-overlay').classList.toggle('open');
+}
+
 /* ─────────────────────────────────────────────────────────────
    2. ABACUS DATA MODEL & PHYSICS SIMULATION
 ───────────────────────────────────────────────────────────────*/
@@ -379,33 +451,52 @@ const THEMES = {
   rosewood: {
     frameBase: '#1F0A06', frameGrain: '#3D150B', frameHighlight: '#7A2C18',
     field: '#48190D', beam: '#120402', rod: '#A8A49E',
-    heavenOff: '#4A1D12', heavenOn: '#FFBE1A',
-    earthOff: '#4A1D12', earthOn: '#FF8800',
+    heavenOff: '#9C5A34', heavenOn: '#FFBE1A',
+    earthOff: '#9C5A34', earthOn: '#FF8800',
     brass: '#D4AF37'
   },
   walnut: {
     frameBase: '#25170F', frameGrain: '#452B1E', frameHighlight: '#684533',
     field: '#382218', beam: '#180E09', rod: '#B0A8A0',
-    heavenOff: '#523425', heavenOn: '#FFC83B',
-    earthOff: '#523425', earthOn: '#FF9E1B',
+    heavenOff: '#9C7A52', heavenOn: '#FFC83B',
+    earthOff: '#9C7A52', earthOn: '#FF9E1B',
     brass: '#E2C068'
   },
   ebony: {
     frameBase: '#101012', frameGrain: '#202024', frameHighlight: '#35353C',
     field: '#18181D', beam: '#09090B', rod: '#CCCCCC',
-    heavenOff: '#3A3A42', heavenOn: '#E5A50A',
-    earthOff: '#3A3A42', earthOn: '#E65100',
+    heavenOff: '#75757F', heavenOn: '#E5A50A',
+    earthOff: '#75757F', earthOn: '#E65100',
     brass: '#C5A059'
   },
   cherry: {
     frameBase: '#330E07', frameGrain: '#591C10', frameHighlight: '#8B3120',
     field: '#50170B', beam: '#1F0602', rod: '#B8ABA0',
-    heavenOff: '#622417', heavenOn: '#FFB300',
-    earthOff: '#622417', earthOn: '#F4511E',
+    heavenOff: '#B0684A', heavenOn: '#FFB300',
+    earthOff: '#B0684A', earthOn: '#F4511E',
     brass: '#E0B548'
   }
 };
 let currentTheme = THEMES.rosewood;
+
+/* Lighten/darken a hex color by `percent` (-100..100) */
+function shadeColor(hex, percent) {
+  const num = parseInt(hex.replace('#', ''), 16);
+  const amt = Math.round(2.55 * percent);
+  let r = Math.max(0, Math.min(255, (num >> 16) + amt));
+  let g = Math.max(0, Math.min(255, ((num >> 8) & 0xFF) + amt));
+  let b = Math.max(0, Math.min(255, (num & 0xFF) + amt));
+  return '#' + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1);
+}
+
+// Derived inactive-bead shading, recomputed whenever the theme changes
+let beadOffHi = '#000', beadOffMid = '#000', beadOffLo = '#000';
+function updateBeadPalette() {
+  beadOffHi = shadeColor(currentTheme.earthOff, 34);
+  beadOffMid = shadeColor(currentTheme.earthOff, -38);
+  beadOffLo = shadeColor(currentTheme.earthOff, -58);
+}
+updateBeadPalette();
 
 // Rod state: logical vs physical animation
 // Each bead has targetY and currentY for fluid spring physics
@@ -749,10 +840,10 @@ function drawRealisticBead(x, y, active, isHeaven, isHovered, isDragging) {
     bodyGrad.addColorStop(0.65, '#9C3600');
     bodyGrad.addColorStop(1, '#471400');
   } else {
-    bodyGrad.addColorStop(0, '#7A3222');
+    bodyGrad.addColorStop(0, beadOffHi);
     bodyGrad.addColorStop(0.3, currentTheme.earthOff);
-    bodyGrad.addColorStop(0.7, '#240A05');
-    bodyGrad.addColorStop(1, '#110301');
+    bodyGrad.addColorStop(0.7, beadOffMid);
+    bodyGrad.addColorStop(1, beadOffLo);
   }
   ctx.fillStyle = bodyGrad;
   ctx.fill();
@@ -1067,6 +1158,7 @@ cvs.addEventListener('pointerup', e => {
   if (dragBead) {
     const { px, py } = getPointerCoord(e);
     const rod = rods[dragBead.rodIdx];
+    pushUndo();
 
     if (dragBead.isHeaven) {
       // Heaven bead: moved toward beam (down) activates, away (up) deactivates
@@ -1095,6 +1187,7 @@ cvs.addEventListener('click', e => {
   const { px, py } = getPointerCoord(e);
   const hit = findBeadAt(px, py);
   if (!hit) return;
+  pushUndo();
 
   const rod = hit.rod;
   if (hit.isHeaven) {
@@ -1155,6 +1248,7 @@ function syncValues() {
 }
 
 function triggerQuickClear() {
+  if (activeTab === 'learn' && !loadingChallenge) pushUndo();
   rods.forEach(r => {
     r.heavenActive = false;
     r.earthCount = 0;
@@ -1164,9 +1258,71 @@ function triggerQuickClear() {
   syncValues();
 }
 
+/* ─────────────────────────────────────────────────────────────
+   6b. LEARN MODE: UNDO / REDO & MANUAL NUMBER ENTRY
+───────────────────────────────────────────────────────────────*/
+let undoStack = [];
+let redoStack = [];
+
+function snapshotState() {
+  return rods.map(r => ({ h: r.heavenActive, e: r.earthCount }));
+}
+
+function applyState(state) {
+  rods.forEach((r, i) => {
+    r.heavenActive = state[i].h;
+    r.earthCount = state[i].e;
+  });
+  updatePhysicalTargets(true);
+  syncValues();
+}
+
+function pushUndo() {
+  if (activeTab !== 'learn') return;
+  undoStack.push(snapshotState());
+  if (undoStack.length > 50) undoStack.shift();
+  redoStack = [];
+  updateUndoRedoButtons();
+}
+
+function undoMove() {
+  if (!undoStack.length) return;
+  redoStack.push(snapshotState());
+  applyState(undoStack.pop());
+  updateUndoRedoButtons();
+  playBeadClack(0.85, 0.6);
+}
+
+function redoMove() {
+  if (!redoStack.length) return;
+  undoStack.push(snapshotState());
+  applyState(redoStack.pop());
+  updateUndoRedoButtons();
+  playBeadClack(1.15, 0.6);
+}
+
+function updateUndoRedoButtons() {
+  const u = document.getElementById('learn-undo-btn');
+  const r = document.getElementById('learn-redo-btn');
+  if (u) u.disabled = undoStack.length === 0;
+  if (r) r.disabled = redoStack.length === 0;
+}
+
+function applyManualEntry() {
+  const inp = document.getElementById('learn-manual-input');
+  if (!inp) return;
+  const num = Math.floor(Number(inp.value));
+  if (!Number.isFinite(num) || num < 0) return;
+  pushUndo();
+  setBoardValue(num);
+  syncValues();
+  inp.value = '';
+}
+
 function changeTheme(themeKey) {
   if (THEMES[themeKey]) {
     currentTheme = THEMES[themeKey];
+    updateBeadPalette();
     generateWoodGrainTexture();
     playBeadClack(1.2, 0.6);
   }
@@ -1256,6 +1412,7 @@ let challengeIdx = 0;
 let userScore = 0;
 let totalAttempts = 0;
 let activeTab = 'calc';
+let loadingChallenge = false;
 
 function loadChallenge() {
   const target = CHALLENGES[challengeIdx % CHALLENGES.length];
@@ -1272,7 +1429,13 @@ function loadChallenge() {
   document.getElementById('learn-step-lbl').textContent = `Challenge ${challengeIdx % CHALLENGES.length + 1} / ${CHALLENGES.length}`;
   document.getElementById('learn-score-lbl').textContent = `Score: ${userScore} / ${totalAttempts}`;
 
+  undoStack = [];
+  redoStack = [];
+  updateUndoRedoButtons();
+
+  loadingChallenge = true;
   triggerQuickClear();
+  loadingChallenge = false;
 }
 
 function verifyChallenge() {
@@ -1297,7 +1460,9 @@ function verifyChallenge() {
 
 function demonstrateHint() {
   const target = CHALLENGES[challengeIdx % CHALLENGES.length];
+  pushUndo();
   setBoardValue(target);
+  syncValues();
   const fb = document.getElementById('learn-feedback');
   fb.className = 'feedback-box hint';
   fb.textContent = `💡 Hint Solution: Here is how ${formatCommas(target)} is placed on the Soroban.`;
@@ -1311,8 +1476,14 @@ function proceedNextChallenge() {
 
 function setTab(tab) {
   activeTab = tab;
-  document.getElementById('view-calc').style.display = (tab === 'calc') ? 'block' : 'none';
-  document.getElementById('view-learn').style.display = (tab === 'learn') ? 'block' : 'none';
+  const calcView = document.getElementById('view-calc');
+  const learnView = document.getElementById('view-learn');
+  calcView.style.display = (tab === 'calc') ? 'block' : 'none';
+  learnView.style.display = (tab === 'learn') ? 'block' : 'none';
+  const shownView = tab === 'calc' ? calcView : learnView;
+  shownView.classList.remove('view-fade-in');
+  void shownView.offsetWidth;
+  shownView.classList.add('view-fade-in');
   document.getElementById('tab-calc-btn').className = 'tab-btn ' + (tab === 'calc' ? 'active' : 'inactive');
   document.getElementById('tab-learn-btn').className = 'tab-btn ' + (tab === 'learn' ? 'active' : 'inactive');
 
