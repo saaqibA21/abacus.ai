@@ -44,25 +44,31 @@ header{
 .icon-btn:hover{background:rgba(255,255,255,0.16)}
 .icon-btn:active{opacity:.8}
 
-/* ── Bottom Tab Navigation ── */
+/* ── Bottom Navigation ── */
 .bottom-nav{
   position:fixed;left:0;right:0;bottom:0;z-index:50;
   max-width:880px;margin:0 auto;
-  display:flex;gap:8px;
-  background:#FFF8EE;border-top:1px solid rgba(139,69,19,0.14);
-  padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+  display:flex;
+  background:#FFF8EEF2;backdrop-filter:blur(6px);
+  border-top:1px solid rgba(139,69,19,0.14);
+  padding:6px 6px calc(6px + env(safe-area-inset-bottom));
 }
-.bottom-nav .tab-btn{flex:1}
-.tabs{display:flex;gap:6px}
-.tab-btn{
-  padding:9px 16px;border:none;border-radius:9px;
-  font-size:.84rem;font-weight:800;cursor:pointer;transition:background .15s ease;
+.nav-item{
+  flex:1;border:none;background:transparent;cursor:pointer;font-family:inherit;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  padding:6px 4px;color:#8A7460;transition:color .15s ease;
 }
-.tab-btn.active{background:#3D180B;color:#FFD700}
-.tab-btn.inactive{background:#E8D8C8;color:#5C2E00}
-.tab-btn.inactive:hover{background:#DEC6B0}
+.nav-item .nav-icon{
+  font-size:1.25rem;line-height:1;display:inline-flex;
+  align-items:center;justify-content:center;
+  width:36px;height:26px;border-radius:10px;transition:background .15s ease;
+}
+.nav-item .nav-label{font-size:.64rem;font-weight:800;letter-spacing:.01em}
+.nav-item.active{color:#5C2E00}
+.nav-item.active .nav-icon{background:rgba(92,46,0,0.1)}
+.nav-item:not(.active):hover .nav-icon{background:rgba(92,46,0,0.06)}
+.nav-item:active{opacity:.7}
 
-.theme-select-wrap{display:flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;color:#5C2E00}
 .theme-select{
   background:#fff;border:1.5px solid #C8A88B;border-radius:9px;
   padding:5px 9px;font-size:.75rem;font-weight:700;color:#3D180B;cursor:pointer;outline:none;
@@ -209,9 +215,6 @@ header{
     <button class="icon-btn" onclick="triggerQuickClear()" title="Quick Clear All Beads">
       <span>🧹</span> Clear
     </button>
-    <button class="icon-btn" onclick="toggleSettings()" title="Settings">
-      <span>⚙️</span> Settings
-    </button>
   </div>
 </header>
 
@@ -333,10 +336,20 @@ header{
 
 </div><!-- /#app -->
 
-<!-- ════ BOTTOM TAB NAVIGATION ════ -->
+<!-- ════ BOTTOM NAVIGATION ════ -->
 <div class="bottom-nav">
-  <button class="tab-btn active" id="tab-calc-btn" onclick="setTab('calc')">🔢 Calculator</button>
-  <button class="tab-btn inactive" id="tab-learn-btn" onclick="setTab('learn')">📚 Learn & Practice</button>
+  <button class="nav-item active" id="tab-calc-btn" onclick="setTab('calc')">
+    <span class="nav-icon">🔢</span>
+    <span class="nav-label">Abacus</span>
+  </button>
+  <button class="nav-item inactive" id="tab-learn-btn" onclick="setTab('learn')">
+    <span class="nav-icon">📚</span>
+    <span class="nav-label">Practice</span>
+  </button>
+  <button class="nav-item" onclick="toggleSettings()">
+    <span class="nav-icon">⚙️</span>
+    <span class="nav-label">Settings</span>
+  </button>
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════
@@ -1474,8 +1487,8 @@ function setTab(tab) {
   shownView.classList.remove('view-fade-in');
   void shownView.offsetWidth;
   shownView.classList.add('view-fade-in');
-  document.getElementById('tab-calc-btn').className = 'tab-btn ' + (tab === 'calc' ? 'active' : 'inactive');
-  document.getElementById('tab-learn-btn').className = 'tab-btn ' + (tab === 'learn' ? 'active' : 'inactive');
+  document.getElementById('tab-calc-btn').className = 'nav-item ' + (tab === 'calc' ? 'active' : 'inactive');
+  document.getElementById('tab-learn-btn').className = 'nav-item ' + (tab === 'learn' ? 'active' : 'inactive');
 
   if (tab === 'learn') {
     loadChallenge();
