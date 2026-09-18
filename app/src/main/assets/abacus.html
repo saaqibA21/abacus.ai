@@ -9,6 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <link rel="manifest" href="manifest.json"/>
 <title>🧮 Soroban Master</title>
+<script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{background:#F4EFE6;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#281308;overflow-x:hidden}
@@ -31,7 +32,7 @@ header{background:linear-gradient(135deg,#1A0703 0%,#471808 50%,#250B03 100%);co
 .nav-item:not(.active):hover .nav-icon{background:rgba(92,46,0,.06)}
 .nav-item:active{opacity:.7}
 .board-wrap{position:relative;margin:11px 0 7px}
-#board{width:100%;display:block;border-radius:17px;cursor:grab;touch-action:none;box-shadow:0 13px 26px rgba(25,10,5,.38),0 3px 9px rgba(0,0,0,.28)}
+#board{width:100%;height:390px;display:block;border-radius:17px;cursor:grab;touch-action:none;box-shadow:0 13px 26px rgba(25,10,5,.38),0 3px 9px rgba(0,0,0,.28)}
 #board:active{cursor:grabbing}
 .board-dim{display:none;position:absolute;inset:0;border-radius:17px;background:rgba(10,4,2,.75);backdrop-filter:blur(3px);z-index:5;align-items:center;justify-content:center;pointer-events:none}
 .board-dim.show{display:flex}
@@ -640,7 +641,7 @@ function setBV(val,sil=false){val=Math.max(0,Math.min(val,9999999999999));let re
 const cvs=document.getElementById('board'),ctx=cvs.getContext('2d'),DPR=Math.min(window.devicePixelRatio||1,2.5);
 const CSH=390,FT=28,HR=0.38,BH=16;
 let CW=740,RS,RX,RY,BY,ETY,EBY,wgc=null;
-function updLayout(){CW=cvs.clientWidth||740;RS=(CW-2*FT)/NR;RX=Math.min(RS*.44,22);RY=RX*.52;BY=FT+(CSH-2*FT)*HR;ETY=BY+BH;EBY=CSH-FT;}
+function updLayout(){CW=Math.max(cvs.clientWidth||740,320);RS=(CW-2*FT)/NR;RX=Math.min(RS*.44,22);RY=RX*.52;BY=FT+(CSH-2*FT)*HR;ETY=BY+BH;EBY=CSH-FT;}
 function rodX(di){return FT+RS*di+RS/2;}
 function calcTgt(){rods.forEach(r=>{r.hb.ty=r.ha?(BY-RY-5):(FT+RY+6);for(let d=0;d<EP;d++){const b=r.eb[d];b.ty=d<r.ec?(ETY+RY+5+d*(RY*2+2.5)):(EBY-RY-5-(EP-1-d)*(RY*2+2.5));}});}
 function updTgt(snd=true){calcTgt();if(snd)playClack(1,.75);}
@@ -654,7 +655,8 @@ const PL=['U','T','H','K','TK','HK','M','TM','HM','B','TB','HB','T'];
 function drawLabels(){const fs=Math.max(8,Math.min(RS*.24,12));ctx.font=`800 ${fs}px system-ui,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';for(let ri=0;ri<NR;ri++){const di=NR-1-ri,x=rodX(di),v=rods[ri].val;ctx.fillStyle='rgba(255,215,80,.85)';ctx.fillText(PL[ri],x,FT*.5);ctx.fillStyle=v>0?'rgba(255,225,90,.95)':'rgba(255,190,70,.2)';ctx.fillText(v>0?v.toString():'·',x,CSH-FT*.5);}}
 let hk=null,db2=null,dsy=0,diy=0;
 function phys(){let rep=false;const LF=.36,SD=.4;rods.forEach(r=>{const hb=r.hb;if(db2!==hb){const d=hb.ty-hb.cy;if(Math.abs(d)>SD){hb.cy+=d*LF;rep=true;}else hb.cy=hb.ty;}r.eb.forEach(eb=>{if(db2!==eb){const d=eb.ty-eb.cy;if(Math.abs(d)>SD){eb.cy+=d*LF;rep=true;}else eb.cy=eb.ty;}});});return rep;}
-function renderF(){updLayout();const pw=Math.round(CW*DPR),ph=Math.round(CSH*DPR);if(cvs.width!==pw||cvs.height!==ph){cvs.width=pw;cvs.height=ph;cvs.style.height=CSH+'px';genWood();}ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,CW,CSH);if(wgc)ctx.drawImage(wgc,0,0,CW,CSH);ctx.lineWidth=2;ctx.strokeStyle='rgba(255,200,80,.22)';ctx.beginPath();ctx.moveTo(2,CSH-2);ctx.lineTo(2,2);ctx.lineTo(CW-2,2);ctx.stroke();ctx.strokeStyle='rgba(0,0,0,.6)';ctx.beginPath();ctx.moveTo(CW-2,2);ctx.lineTo(CW-2,CSH-2);ctx.lineTo(2,CSH-2);ctx.stroke();const fx=FT,fy=FT,fw=CW-2*FT,fh=CSH-2*FT;rrect(fx,fy,fw,fh,10);const fg=ctx.createLinearGradient(fx,fy,fx+fw,fy+fh);fg.addColorStop(0,CT.field);fg.addColorStop(.5,CT.frameBase);fg.addColorStop(1,CT.field);ctx.fillStyle=fg;ctx.fill();rrect(fx,fy,fw,fh,10);ctx.save();ctx.clip();const is=ctx.createLinearGradient(0,fy,0,fy+28);is.addColorStop(0,'rgba(0,0,0,.48)');is.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=is;ctx.fillRect(fx,fy,fw,30);ctx.restore();rrect(fx,fy,fw,fh,10);ctx.strokeStyle='rgba(0,0,0,.7)';ctx.lineWidth=1.8;ctx.stroke();drawBracket(4,4,false,false);drawBracket(CW-4,4,true,false);drawBracket(4,CSH-4,false,true);drawBracket(CW-4,CSH-4,true,true);ctx.save();rrect(fx,fy,fw,fh,10);ctx.clip();for(let di=0;di<NR;di++)drawRod(rodX(di));drawBeam();for(let ri=0;ri<NR;ri++){const di=NR-1-ri,x=rodX(di),rod=rods[ri];drawBead(x,rod.hb.cy,rod.ha,true,hk===`${ri}:H`,db2===rod.hb);rod.eb.forEach((eb,d)=>drawBead(x,eb.cy,d<rod.ec,false,hk===`${ri}:${d}`,db2===eb));}ctx.restore();drawLabels();}
+function renderF(){updLayout();const pw=Math.round(CW*DPR),ph=Math.round(CSH*DPR);if(cvs.width!==pw||cvs.height!==ph){cvs.width=pw;cvs.height=ph;cvs.style.height=CSH+'px';calcTgt();genWood();}ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,CW,CSH);if(wgc)ctx.drawImage(wgc,0,0,CW,CSH);
+ctx.lineWidth=2;ctx.strokeStyle='rgba(255,200,80,.22)';ctx.beginPath();ctx.moveTo(2,CSH-2);ctx.lineTo(2,2);ctx.lineTo(CW-2,2);ctx.stroke();ctx.strokeStyle='rgba(0,0,0,.6)';ctx.beginPath();ctx.moveTo(CW-2,2);ctx.lineTo(CW-2,CSH-2);ctx.lineTo(2,CSH-2);ctx.stroke();const fx=FT,fy=FT,fw=CW-2*FT,fh=CSH-2*FT;rrect(fx,fy,fw,fh,10);const fg=ctx.createLinearGradient(fx,fy,fx+fw,fy+fh);fg.addColorStop(0,CT.field);fg.addColorStop(.5,CT.frameBase);fg.addColorStop(1,CT.field);ctx.fillStyle=fg;ctx.fill();rrect(fx,fy,fw,fh,10);ctx.save();ctx.clip();const is=ctx.createLinearGradient(0,fy,0,fy+28);is.addColorStop(0,'rgba(0,0,0,.48)');is.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=is;ctx.fillRect(fx,fy,fw,30);ctx.restore();rrect(fx,fy,fw,fh,10);ctx.strokeStyle='rgba(0,0,0,.7)';ctx.lineWidth=1.8;ctx.stroke();drawBracket(4,4,false,false);drawBracket(CW-4,4,true,false);drawBracket(4,CSH-4,false,true);drawBracket(CW-4,CSH-4,true,true);ctx.save();rrect(fx,fy,fw,fh,10);ctx.clip();for(let di=0;di<NR;di++)drawRod(rodX(di));drawBeam();for(let ri=0;ri<NR;ri++){const di=NR-1-ri,x=rodX(di),rod=rods[ri];drawBead(x,rod.hb.cy,rod.ha,true,hk===`${ri}:H`,db2===rod.hb);rod.eb.forEach((eb,d)=>drawBead(x,eb.cy,d<rod.ec,false,hk===`${ri}:${d}`,db2===eb));}ctx.restore();drawLabels();}
 function loop(){phys();renderF();requestAnimationFrame(loop);}
 
 /* ── INPUT ── */
