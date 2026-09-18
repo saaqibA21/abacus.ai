@@ -1,0 +1,17 @@
+{
+  "name": "Master Soroban – Hyper-Realistic Abacus",
+  "short_name": "Soroban",
+  "description": "Authentic Japanese Abacus (Soroban) with realistic physics, tactile sound, full curriculum, drills, and Flash Anzan.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1E0804",
+  "theme_color": "#1E0804",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "app/src/main/res/drawable/ic_launcher_foreground.xml",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

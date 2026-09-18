@@ -78,3 +78,13 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
+
+val syncWebAsset = tasks.register<Copy>("syncWebAsset") {
+    from(rootProject.file("index.html"))
+    into(layout.projectDirectory.dir("src/main/assets"))
+    rename("index.html", "abacus.html")
+}
+
+tasks.named("preBuild") {
+    dependsOn(syncWebAsset)
+}
