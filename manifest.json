@@ -1,6 +1,6 @@
 {
-  "name": "Master Soroban – Hyper-Realistic Abacus",
-  "short_name": "Soroban",
+  "name": "Abacus AI",
+  "short_name": "Abacus AI",
   "description": "Authentic Japanese Abacus (Soroban) with realistic physics, tactile sound, full curriculum, drills, and Flash Anzan.",
   "start_url": "./index.html",
   "display": "standalone",

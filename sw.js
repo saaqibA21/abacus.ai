@@ -1,4 +1,4 @@
-const CACHE_NAME = 'soroban-cache-v1';
+const CACHE_NAME = 'abacus-ai-cache-v2';
 const ASSETS = [
   './',
   './index.html',
